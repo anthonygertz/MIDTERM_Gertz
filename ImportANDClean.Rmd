@@ -1,6 +1,83 @@
-
-
+```{r}
 library(tidyverse)
+```
+
+
+
+```{r}
+#Initial test code just to make sure everything was working
+#NOAA_Raw1950 <- read_csv("NOAA_Raw/StormEvents_details-ftp_v1.0_d1950_c20170120.csv")
+
+#Reads in multiple subsequent csv files and combines them into a single dataframe
+#Also does so by the list of chosen columns
+files <- setwd("D:/NSS/MIDTERM_Gertz/NOAA_Raw")
+files = list.files(pattern = "*.csv")
+noaa_raw = do.call(rbind, lapply(files, function(x) read.csv(x, stringsAsFactors = FALSE)[ ,        c('EVENT_ID', 'STATE', 'YEAR', 
+      'MONTH_NAME', 'EVENT_TYPE', 'INJURIES_DIRECT',
+      'DEATHS_DIRECT', 'DAMAGE_PROPERTY', 'BEGIN_LOCATION',
+      'END_LOCATION', 'BEGIN_LAT', 'BEGIN_LON',
+      'END_LAT', 'END_LON', 'CZ_NAME')]
+                                 ))
+```
+
+
+
+```{r}
+#Creates a list of states for filtering
+state_filter = c('ARKANSAS', 'TENNESSEE', 'ALABAMA', 'MISSISSIPPI', 
+                    'GEORGIA', 'SOUTH CAROLINA', 'NORTH CAROLINA', 'KENTUCKY',
+                 'WEST VIRGINIA', 'VIRGINIA')
+
+#Filters the DF by the state_filter created above and only 2 disaster types
+#Also renames columns from all caps to lower case, because
+noaa_select <- noaa_raw %>%
+  filter(EVENT_TYPE == 'Flood' | EVENT_TYPE == 'Flash Flood', STATE %in% state_filter) %>%
+  rename(event_id = EVENT_ID, state = STATE, year = YEAR, month = MONTH_NAME, 
+         injuries = INJURIES_DIRECT, deaths = DEATHS_DIRECT, damage = DAMAGE_PROPERTY, 
+         begin_loc = BEGIN_LOCATION, end_loc = END_LOCATION, begin_lat = BEGIN_LAT, 
+         begin_lon = BEGIN_LON, end_lat = END_LAT, end_lon = END_LON, county = CZ_NAME, 
+         event = EVENT_TYPE)
+
+#Converts columns of all upper case values to only first letter capitals
+noaa_select <- noaa_select %>%
+  mutate(state = str_to_title(state), 
+         county = str_to_title(county),
+         begin_loc = str_to_title(begin_loc),
+         end_loc = str_to_title(end_loc))
+
+#Initial Test Code for the str_to_title function used for testing
+#NOAA_Select$state <- str_to_title(NOAA_Select$state)
+#NOAA_Select$county <- str_to_title(NOAA_Select$county) 
+```
+
+
+
+```{r}
+#Creates two columns and places only the numerical portion from the damage column into 
+#damage_num
+
+noaa_select <- noaa_select %>%
+  separate(damage, c('damage_num', 'damage_mod'),
+           '\\w$',
+           remove = FALSE, convert = TRUE)
+
+#Uses the 2nd column created above and reg extracts the units value 
+
+noaa_select$damage_mod <- noaa_select$damage %>%
+  str_extract('\\w$')
+```
+
+```{r}
+#Filters out NA values and converts damage values to equal units based on damage_mod column
+noaa_select <- noaa_select %>%
+  filter(damage_mod == 'M' | damage_mod == 'K') %>%
+  mutate(damage_num = ifelse(damage_mod == 'M',
+                             damage_num <- damage_num * 1000000,
+                             damage_num <- damage_num* 1000))
+
+
+
+```
 
 
 
