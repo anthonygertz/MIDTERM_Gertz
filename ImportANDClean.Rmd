@@ -86,12 +86,13 @@ noaa_select <- noaa_select %>%
 cpi <- read_csv("cpi/CPI1996_to_2019.csv") %>%
           mutate(cpi_adj = 161.75/CPI)
 
-#Creates a new data frame that merges the CPI data by year and creates a new column that shows damage values by 2020 CPI dollars
+#Creates a new data frame that merges the CPI data by year and creates a new column that shows damage values by 2020 CPI dollars and fills empty values in the begin_loc column with 'Countywide'
 
 floods <- merge(noaa_select, cpi, 
                 by.x = 'year', by.y = 'Year', 
                 all.x = TRUE, all.y = FALSE) %>%
-          mutate(damage_cpi = damage_cpi * cpi_adj)
+          mutate(damage_cpi = damage_cpi * cpi_adj) %>%
+          mutate(begin_loc = if_else(begin_loc == '', 'Countywide', begin_loc))
 ```
 
 
@@ -118,17 +119,20 @@ census_full <- census_old %>%
 
 
 ```{r}
+#Placeholder for adding additional code
+
+
 
 ```
 
 
 ```{r}
 #Creates a new data directory in my working directory
-data <- dir_create('data')
+data <- dir_create('resiliency/data')
 
 #Writes both necessary csv files to the working directory
-write.csv(census_full, 'data/census_full.csv', row.names = FALSE)
-write.csv(floods, 'data/floods.csv', row.names = FALSE)
+write.csv(census_full, 'resiliency/data/census_full.csv', row.names = FALSE)
+write.csv(floods, 'resiliency/data/floods.csv', row.names = FALSE)
 ```
 
 
