@@ -1,5 +1,6 @@
 library(shiny)
 library(shinydashboard)
+library(dashboardthemes)
 library(tidyverse)
 library(stringr)
 library(data.table)
@@ -65,7 +66,7 @@ disasters <- disasters %>%
   mutate(`Population Change` = Population - shift(Population, 1, type = 'lag'), 
          `Population Change Ratio` = Population / shift(Population, 1, type = 'lag'), 
          `Expected Damage` = `Total Damage` * Population / shift(Population, 1, type = 'lag'),
-         `Magic Number` = (`Total Damage` * Population / shift(Population, 1, type = 'lag')) / `Total Damage`) %>%
+         `Resiliency Factor` = (`Total Damage` * Population / shift(Population, 1, type = 'lag')) / `Total Damage`) %>%
   rename(`Affected Population` = Population, 
          `Affected Population Change Ratio` = `Population Change Ratio`, 
          `Affected Population Change` = `Population Change`)

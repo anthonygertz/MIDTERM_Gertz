@@ -1,5 +1,5 @@
 shinyUI(
-  dashboardPage(skin = 'red',
+  dashboardPage(
     dashboardHeader(title = span(
       "Comparative Resiliency Across Time",
       style = 'color: white; font-size: 30px, font-weight: bold'),
@@ -20,18 +20,14 @@ shinyUI(
     ), #Dashboard Slider Paren
     
     dashboardBody(
+      shinyDashboardThemes(
+        theme = "blue_gradient"
+      ),
       tabItems(
         tabItem(tabName = 'county_sum',
                 fluidRow(
                 tabBox(
                     title = '',
-                    tabPanel('County Versus State',
-                            h3(textOutput('county_selection4')),
-                            p(''),
-                            tableOutput('county_sum_magic'),
-                            h3(textOutput('state_selection4')),
-                            p(''),
-                            tableOutput('state_sum_table1')),
                     tabPanel('Calculated Ratio Per Year',
                              h3(textOutput('county_selection1')),
                              p(''),
@@ -53,6 +49,13 @@ shinyUI(
                              #                             'Max CPI Adjusted Damage' = 'Max CPI Adjusted Damage', 
                              #                             'Mean CPI Adjusted Damage' = 'Mean CPI Adjusted Damage')),
                              plotlyOutput('county_plot_damage')),
+                    tabPanel('County Versus State',
+                             h3(textOutput('county_selection4')),
+                             p(''),
+                             tableOutput('county_sum_magic'),
+                             h3(textOutput('state_selection4')),
+                             p(''),
+                             tableOutput('state_sum_table1')),
                     tabPanel('Complete List',
                              h3(textOutput('county_selection3')),
                              p(''),
@@ -93,7 +96,15 @@ shinyUI(
         tabItem(tabName = 'region',
                 h3('Southern Regional Summary'), 
                 p(''),
-                tableOutput('state_all')
+                tableOutput('state_all'),
+                radioButtons('res_cat',
+                             label = 'Select Resiliency Factor Statistic:',
+                             choices = list('Minimum' = 'Resiliency Factor Minimum',
+                                            'Maximum' = 'Resiliency Factor Maximum',
+                                            'Mean' = 'Resiliency Factor Mean',
+                                            'Median' = 'Resiliency Factor Median', 
+                                            'Standard Deviation' = 'Resiliency Factor Standard Deviation')),
+                plotlyOutput('state_sum_plot')
                 ) #tabItem Paren         
         
               ) #tabItems Paren

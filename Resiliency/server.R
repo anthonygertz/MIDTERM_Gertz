@@ -18,7 +18,7 @@ shinyServer(function(input, output) {
     disasters %>%
       filter(State == input$state & County == input$county) %>%
       select('Year', 'Affected Population Change', 'Total Damage', 
-             'Expected Damage', 'Magic Number') %>% 
+             'Expected Damage', 'Resiliency Factor') %>% 
       mutate(Year = as.character(Year),
            `Total Damage` = as.integer(`Total Damage`),
            `Expected Damage` = as.integer(`Expected Damage`)) %>%
@@ -31,12 +31,12 @@ shinyServer(function(input, output) {
     disasters %>%
       filter(State == input$state) %>%
       select('Year', 'Affected Population Change', 'Total Damage', 
-             'Expected Damage', 'Magic Number') %>% 
+             'Expected Damage', 'Resiliency Factor') %>% 
       group_by(Year) %>% 
       summarise(`Affected Population Change` = sum(`Affected Population Change`, na.rm = TRUE),
                 `Total Damage` = sum(`Total Damage`),
                 `Expected Damage` = sum(`Expected Damage`, na.rm = TRUE),
-                `Magic Number` = mean(`Magic Number`, na.rm = TRUE)) %>% 
+                `Resiliency Factor` = mean(`Resiliency Factor`, na.rm = TRUE)) %>% 
       mutate(Year = as.character(Year),
              `Total Damage` = as.integer(`Total Damage`),
              `Expected Damage` = as.integer(`Expected Damage`),
@@ -68,13 +68,13 @@ shinyServer(function(input, output) {
     req(input$county)
     disasters %>%
       filter(State == input$state & County == input$county) %>%
-      select('Year', 'Magic Number') %>%
+      select('Year', 'Resiliency Factor') %>%
       group_by(County) %>%
-      summarise('Magic Number Minimum' = min(`Magic Number`, na.rm = TRUE), 
-                'Magic Number Maximum' = max(`Magic Number`, na.rm = TRUE),
-                'Magic Number Mean' = mean(`Magic Number`, na.rm = TRUE),
-                'Magic Number Median' = median(`Magic Number`, na.rm = TRUE),
-                'Magic Number Standard Deviation' = sd(`Magic Number`, na.rm = TRUE)
+      summarise('Resiliency Factor Minimum' = min(`Resiliency Factor`, na.rm = TRUE), 
+                'Resiliency Factor Maximum' = max(`Resiliency Factor`, na.rm = TRUE),
+                'Resiliency Factor Mean' = mean(`Resiliency Factor`, na.rm = TRUE),
+                'Resiliency Factor Median' = median(`Resiliency Factor`, na.rm = TRUE),
+                'Resiliency Factor Standard Deviation' = sd(`Resiliency Factor`, na.rm = TRUE)
                 ) %>% 
       select(-'County')
   }, striped = TRUE, align = 'r') #state_sum_table closing Paren
@@ -101,13 +101,13 @@ shinyServer(function(input, output) {
     req(input$state)
     disasters %>%
       filter(State == input$state) %>%
-      select('State', 'Magic Number') %>%
+      select('State', 'Resiliency Factor') %>%
       group_by(State) %>%
-      summarise('Magic Number Minimum' = min(`Magic Number`, na.rm = TRUE), 
-                'Magic Number Maximum' = max(`Magic Number`, na.rm = TRUE),
-                'Magic Number Mean' = mean(`Magic Number`, na.rm = TRUE),
-                'Magic Number Median' = median(`Magic Number`, na.rm = TRUE),
-                'Magic Number Standard Deviation' = sd(`Magic Number`, na.rm = TRUE)
+      summarise('Resiliency Factor Minimum' = min(`Resiliency Factor`, na.rm = TRUE), 
+                'Resiliency Factor Maximum' = max(`Resiliency Factor`, na.rm = TRUE),
+                'Resiliency Factor Mean' = mean(`Resiliency Factor`, na.rm = TRUE),
+                'Resiliency Factor Median' = median(`Resiliency Factor`, na.rm = TRUE),
+                'Resiliency Factor Standard Deviation' = sd(`Resiliency Factor`, na.rm = TRUE)
                 )
    }, striped = TRUE, align = 'r') #state_sum_table closing Paren
   
@@ -115,26 +115,26 @@ shinyServer(function(input, output) {
     req(input$county)
     disasters %>%
       filter(State == input$state) %>%
-      select('State', 'Magic Number') %>%
+      select('State', 'Resiliency Factor') %>%
       group_by(State) %>%
-      summarise('Magic Number Minimum' = min(`Magic Number`, na.rm = TRUE), 
-                'Magic Number Maximum' = max(`Magic Number`, na.rm = TRUE),
-                'Magic Number Mean' = mean(`Magic Number`, na.rm = TRUE),
-                'Magic Number Median' = median(`Magic Number`, na.rm = TRUE),
-                'Magic Number Standard Deviation' = sd(`Magic Number`, na.rm = TRUE)
+      summarise('Resiliency Factor Minimum' = min(`Resiliency Factor`, na.rm = TRUE), 
+                'Resiliency Factor Maximum' = max(`Resiliency Factor`, na.rm = TRUE),
+                'Resiliency Factor Mean' = mean(`Resiliency Factor`, na.rm = TRUE),
+                'Resiliency Factor Median' = median(`Resiliency Factor`, na.rm = TRUE),
+                'Resiliency Factor Standard Deviation' = sd(`Resiliency Factor`, na.rm = TRUE)
       ) %>% 
       select(-'State')
   }, striped = TRUE, align = 'r') #state_sum_table closing Paren
   
   output$state_all <- renderTable({
       disasters %>%
-      select('State', 'Magic Number') %>%
+      select('State', 'Resiliency Factor') %>%
       group_by(State) %>%
-      summarise('Magic Number Minimum' = min(`Magic Number`, na.rm = TRUE), 
-                'Magic Number Maximum' = max(`Magic Number`, na.rm = TRUE),
-                'Magic Number Mean' = mean(`Magic Number`, na.rm = TRUE),
-                'Magic Number Median' = median(`Magic Number`, na.rm = TRUE),
-                'Magic Number Standard Deviation' = sd(`Magic Number`, na.rm = TRUE)
+      summarise('Resiliency Factor Minimum' = min(`Resiliency Factor`, na.rm = TRUE), 
+                'Resiliency Factor Maximum' = max(`Resiliency Factor`, na.rm = TRUE),
+                'Resiliency Factor Mean' = mean(`Resiliency Factor`, na.rm = TRUE),
+                'Resiliency Factor Median' = median(`Resiliency Factor`, na.rm = TRUE),
+                'Resiliency Factor Standard Deviation' = sd(`Resiliency Factor`, na.rm = TRUE)
                 )
   }, striped = TRUE, align = 'r') #state_all closing Paren
 
@@ -142,13 +142,13 @@ shinyServer(function(input, output) {
     req(input$state)
     disasters %>%
       filter(State == input$state) %>%
-      select('County', 'Magic Number') %>%
+      select('County', 'Resiliency Factor') %>%
       group_by(County) %>%
-      summarise('Magic Number Minimum' = min(`Magic Number`, na.rm = TRUE), 
-                'Magic Number Maximum' = max(`Magic Number`, na.rm = TRUE),
-                'Magic Number Mean' = mean(`Magic Number`, na.rm = TRUE),
-                'Magic Number Median' = median(`Magic Number`, na.rm = TRUE),
-                'Magic Number Standard Deviation' = sd(`Magic Number`, na.rm = TRUE)
+      summarise('Resiliency Factor Minimum' = min(`Resiliency Factor`, na.rm = TRUE), 
+                'Resiliency Factor Maximum' = max(`Resiliency Factor`, na.rm = TRUE),
+                'Resiliency Factor Mean' = mean(`Resiliency Factor`, na.rm = TRUE),
+                'Resiliency Factor Median' = median(`Resiliency Factor`, na.rm = TRUE),
+                'Resiliency Factor Standard Deviation' = sd(`Resiliency Factor`, na.rm = TRUE)
                 )
   }, striped = TRUE, align = 'r') #state_county_table closing Paren
   
@@ -193,11 +193,12 @@ shinyServer(function(input, output) {
            value.name = 'damage') %>%
       ggplot(aes(y = damage, x = Year, color = damcat, group = damcat))
       + geom_line()
-      + theme_bw()
-      + theme(legend.title = element_blank())
+      + theme_dark()
+      + theme(legend.title = element_blank(), legend.position = 'none')
       + scale_x_continuous(breaks = 1995:2019)
       + scale_y_continuous(labels =  unit_format(unit = 't', scale = 1e-3, prefix = '$'))
-      + labs(title = 'Expected Damage vs. Actual Damage Per Year')
+      + labs(title = 'Expected Damage & Actual Damage Per Year')
+      + scale_color_manual(values = c("red", "blue"))
       + xlab('')
       + ylab('')
       + theme(axis.text.x = element_text(angle = 45))
@@ -210,12 +211,12 @@ shinyServer(function(input, output) {
     ggplotly(disasters %>%
                filter(State %in% input$state & County %in% input$county) %>%
                na.omit() %>%
-               ggplot(aes(y = `Magic Number`, x = Year))
-             + geom_line()
-             + theme_bw()
-             + theme(legend.title = element_blank())
+               ggplot(aes(y = `Resiliency Factor`, x = Year))
+             + geom_line(color = 'blue')
+             + theme_dark()
+             + theme(legend.title = element_blank(), legend.position = 'none')
              + scale_x_continuous(breaks = 1995:2019)
-             + labs(title = 'Magic Number Per Disaster Year')
+             + labs(title = 'Resiliency Factor Per Disaster Year')
              + xlab('')
              + ylab('')
              + theme(axis.text.x = element_text(angle = 45))
@@ -232,13 +233,13 @@ shinyServer(function(input, output) {
                summarise(`Affected Population Change` = sum(`Affected Population Change`, na.rm = TRUE),
                          `Total Damage` = sum(`Total Damage`),
                          `Expected Damage` = sum(`Expected Damage`, na.rm = TRUE),
-                         `Magic Number` = mean(`Magic Number`, na.rm = TRUE)) %>%
-               ggplot(aes(y = `Magic Number`, x = Year))
-             + geom_line()
-             + theme_bw()
-             + theme(legend.title = element_blank())
+                         `Resiliency Factor` = mean(`Resiliency Factor`, na.rm = TRUE)) %>%
+               ggplot(aes(y = `Resiliency Factor`, x = Year))
+             + geom_line(color = 'blue')
+             + theme_dark()
+             + theme(legend.title = element_blank(), legend.position = 'none')
              + scale_x_continuous(breaks = 1995:2019)
-             + labs(title = 'Mean Magic Number Per Disaster Year')
+             + labs(title = 'Resiliency Factor Number Per Disaster Year')
              + xlab('')
              + ylab('')
              + theme(axis.text.x = element_text(angle = 45))
@@ -254,11 +255,11 @@ shinyServer(function(input, output) {
                  group_by(County) %>%
                  summarise(`Total Damage` = sum(`Total Damage`, na.rm = TRUE),
                            `Expected Damage` = sum(`Expected Damage`, na.rm = TRUE),
-                           `Magic Number Standard Deviation` = sd(`Magic Number`, na.rm = TRUE)) %>%
+                           `Resiliency Factor Standard Deviation` = sd(`Resiliency Factor`, na.rm = TRUE)) %>%
                  ggplot(aes(y = `Expected Damage`, x = `Total Damage`, 
-                            color = County, size = `Magic Number Standard Deviation`))
+                            color = County, size = `Resiliency Factor Standard Deviation`))
                + geom_point()
-               + theme_bw()
+               + theme_dark()
                + theme(legend.title = element_blank(), legend.position = 'none')
                + labs(title = 'Expected Damage Versus Total Damage')
                + scale_x_continuous(labels =  unit_format(unit = 't', scale = 1e-3, prefix = '$'))
@@ -268,9 +269,31 @@ shinyServer(function(input, output) {
                + theme(axis.text.x = element_text(angle = 45))
       ) #ggplotly closing Paren
 
-  }) #state_counties closing Paren
-  
-  # output$county_plot_damage <- renderPlotly({
+    }) #state_counties closing Paren
+      
+    output$state_sum_plot <- renderPlotly({
+            ggplotly(disasters %>%
+            select('State', 'Resiliency Factor') %>%
+            group_by(State) %>%
+            summarise('Resiliency Factor Minimum' = min(`Resiliency Factor`, na.rm = TRUE),
+                      'Resiliency Factor Maximum' = max(`Resiliency Factor`, na.rm = TRUE),
+                      'Resiliency Factor Mean' = mean(`Resiliency Factor`, na.rm = TRUE),
+                      'Resiliency Factor Median' = median(`Resiliency Factor`, na.rm = TRUE),
+                      'Resiliency Factor Standard Deviation' = sd(`Resiliency Factor`, na.rm = TRUE)
+                      ) %>% 
+            arrange(desc(State)) %>% 
+            ggplot()
+            + geom_col(aes_string(y = 'State', x = as.name(input$res_cat), 
+                                  fill = 'State'))
+            + theme_dark()
+            + theme(legend.title = element_blank(), legend.position = 'none')
+            + labs(title = 'Resiliency Factors Per State')
+            + xlab('')
+            + ylab('')
+            ) #ggplotly closing Paren
+     }) #state_sum_plot closing Paren    
+      
+    # output$county_plot_damage <- renderPlotly({
   #   req(input$county)
   #   ggplotly(floods %>%
   #              filter(State %in% input$state & County %in% input$county) %>%
