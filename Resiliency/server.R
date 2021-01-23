@@ -63,6 +63,21 @@ shinyServer(function(input, output) {
              `Mean CPI Adjusted Damage` = as.integer(`Mean CPI Adjusted Damage`)) %>%
       format.data.frame(justify = 'right', big.mark = ',', trim = TRUE)
   }, striped = TRUE, align = 'r') #county_sum_table closing Paren
+  
+  output$county_sum_magic <- renderTable({
+    req(input$county)
+    disasters %>%
+      filter(State == input$state & County == input$county) %>%
+      select('Year', 'Magic Number') %>%
+      group_by(County) %>%
+      summarise('Magic Number Minimum' = min(`Magic Number`, na.rm = TRUE), 
+                'Magic Number Maximum' = max(`Magic Number`, na.rm = TRUE),
+                'Magic Number Mean' = mean(`Magic Number`, na.rm = TRUE),
+                'Magic Number Median' = median(`Magic Number`, na.rm = TRUE),
+                'Magic Number Standard Deviation' = sd(`Magic Number`, na.rm = TRUE)
+                ) %>% 
+      select(-'County')
+  }, striped = TRUE, align = 'r') #state_sum_table closing Paren
       
   output$state_sum_year <- renderTable({
     req(input$state)
@@ -91,8 +106,25 @@ shinyServer(function(input, output) {
       summarise('Magic Number Minimum' = min(`Magic Number`, na.rm = TRUE), 
                 'Magic Number Maximum' = max(`Magic Number`, na.rm = TRUE),
                 'Magic Number Mean' = mean(`Magic Number`, na.rm = TRUE),
-                'Magic Number Median' = median(`Magic Number`, na.rm = TRUE))
+                'Magic Number Median' = median(`Magic Number`, na.rm = TRUE),
+                'Magic Number Standard Deviation' = sd(`Magic Number`, na.rm = TRUE)
+                )
    }, striped = TRUE, align = 'r') #state_sum_table closing Paren
+  
+  output$state_sum_table1 <- renderTable({
+    req(input$county)
+    disasters %>%
+      filter(State == input$state) %>%
+      select('State', 'Magic Number') %>%
+      group_by(State) %>%
+      summarise('Magic Number Minimum' = min(`Magic Number`, na.rm = TRUE), 
+                'Magic Number Maximum' = max(`Magic Number`, na.rm = TRUE),
+                'Magic Number Mean' = mean(`Magic Number`, na.rm = TRUE),
+                'Magic Number Median' = median(`Magic Number`, na.rm = TRUE),
+                'Magic Number Standard Deviation' = sd(`Magic Number`, na.rm = TRUE)
+      ) %>% 
+      select(-'State')
+  }, striped = TRUE, align = 'r') #state_sum_table closing Paren
   
   output$state_all <- renderTable({
       disasters %>%
@@ -101,7 +133,9 @@ shinyServer(function(input, output) {
       summarise('Magic Number Minimum' = min(`Magic Number`, na.rm = TRUE), 
                 'Magic Number Maximum' = max(`Magic Number`, na.rm = TRUE),
                 'Magic Number Mean' = mean(`Magic Number`, na.rm = TRUE),
-                'Magic Number Median' = median(`Magic Number`, na.rm = TRUE))
+                'Magic Number Median' = median(`Magic Number`, na.rm = TRUE),
+                'Magic Number Standard Deviation' = sd(`Magic Number`, na.rm = TRUE)
+                )
   }, striped = TRUE, align = 'r') #state_all closing Paren
 
   output$state_county_table <- renderTable({
@@ -113,8 +147,10 @@ shinyServer(function(input, output) {
       summarise('Magic Number Minimum' = min(`Magic Number`, na.rm = TRUE), 
                 'Magic Number Maximum' = max(`Magic Number`, na.rm = TRUE),
                 'Magic Number Mean' = mean(`Magic Number`, na.rm = TRUE),
-                'Magic Number Median' = median(`Magic Number`, na.rm = TRUE))
-  }, striped = TRUE, align = 'r') #state_sum_table closing Paren
+                'Magic Number Median' = median(`Magic Number`, na.rm = TRUE),
+                'Magic Number Standard Deviation' = sd(`Magic Number`, na.rm = TRUE)
+                )
+  }, striped = TRUE, align = 'r') #state_county_table closing Paren
   
   
   #format.data.frame cannot select individuals columns (I tried for a long time), you know, because R...so to 
@@ -208,7 +244,31 @@ shinyServer(function(input, output) {
              + theme(axis.text.x = element_text(angle = 45))
     ) #ggplotly closing Paren
     
-  }) #state_plot_ratio closing Paren
+    }) #state_plot_ratio closing Paren
+  
+    output$state_counties <- renderPlotly({
+      req(input$state)
+      ggplotly(disasters %>%
+                 filter(State %in% input$state) %>%
+                 na.omit() %>%
+                 group_by(County) %>%
+                 summarise(`Total Damage` = sum(`Total Damage`, na.rm = TRUE),
+                           `Expected Damage` = sum(`Expected Damage`, na.rm = TRUE),
+                           `Magic Number Standard Deviation` = sd(`Magic Number`, na.rm = TRUE)) %>%
+                 ggplot(aes(y = `Expected Damage`, x = `Total Damage`, 
+                            color = County, size = `Magic Number Standard Deviation`))
+               + geom_point()
+               + theme_bw()
+               + theme(legend.title = element_blank(), legend.position = 'none')
+               + labs(title = 'Expected Damage Versus Total Damage')
+               + scale_x_continuous(labels =  unit_format(unit = 't', scale = 1e-3, prefix = '$'))
+               + scale_y_continuous(labels =  unit_format(unit = 't', scale = 1e-3, prefix = '$'))
+               + xlab('')
+               + ylab('')
+               + theme(axis.text.x = element_text(angle = 45))
+      ) #ggplotly closing Paren
+
+  }) #state_counties closing Paren
   
   # output$county_plot_damage <- renderPlotly({
   #   req(input$county)
@@ -263,6 +323,11 @@ shinyServer(function(input, output) {
     paste('State of ', input$state)
   }) #state_selection closing Paren
   
+  output$state_selection4 <- renderText({
+    req(input$county)
+    paste('State of ', input$state)
+  }) #state_selection closing Paren
+  
   output$county_selection <- renderText({
     req(input$county)
     paste(input$county, ' County, ', input$state)
@@ -282,5 +347,10 @@ shinyServer(function(input, output) {
     req(input$county)
     paste(input$county, ' County, ', input$state)
   }) #county_selection closing Paren      
+  
+  output$county_selection4 <- renderText({
+    req(input$county)
+    paste(input$county, ' County, ', input$state)
+  }) #county_selection closing Paren  
   
 }) #shinyServer closing Paren

@@ -25,6 +25,13 @@ shinyUI(
                 fluidRow(
                 tabBox(
                     title = '',
+                    tabPanel('County Versus State',
+                            h3(textOutput('county_selection4')),
+                            p(''),
+                            tableOutput('county_sum_magic'),
+                            h3(textOutput('state_selection4')),
+                            p(''),
+                            tableOutput('state_sum_table1')),
                     tabPanel('Calculated Ratio Per Year',
                              h3(textOutput('county_selection1')),
                              p(''),
@@ -57,13 +64,14 @@ shinyUI(
         tabItem(tabName = 'state_sum',
                 tabBox(
                     title = '',
-                    tabPanel('Magic Number Summary',
+                    tabPanel('Statewide Summary',
                              h3(textOutput('state_selection')),
                              p(''),
                              tableOutput('state_sum_table'),
                              h3('Individual Counties'),
                              p(''),
-                             tableOutput('state_county_table')
+                             tableOutput('state_county_table'),
+                             plotlyOutput('state_counties')
                              ),
                     tabPanel('Calculated Ratio Per Year',
                              h3(textOutput('state_selection1')),
