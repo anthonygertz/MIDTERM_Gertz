@@ -3,6 +3,9 @@ library(shinydashboard)
 library(tidyverse)
 library(stringr)
 library(data.table)
+library(plotly)
+library(ggplot2)
+library(scales)
 
 options(scipen=999)
 

@@ -64,7 +64,7 @@ shinyServer(function(input, output) {
       format.data.frame(justify = 'right', big.mark = ',', trim = TRUE)
   }, striped = TRUE, align = 'r') #county_sum_table closing Paren
       
-  output$state_sum_table <- renderTable({
+  output$state_sum_year <- renderTable({
     req(input$state)
     floods %>%
       filter(State == input$state) %>%
@@ -80,9 +80,44 @@ shinyServer(function(input, output) {
              `Mean Nominal Damage` = as.integer(`Mean Nominal Damage`),
              `Mean CPI Adjusted Damage` = as.integer(`Mean CPI Adjusted Damage`)) %>%
       format.data.frame(justify = 'right', big.mark = ',', trim = TRUE)
+  }, striped = TRUE, align = 'r') #state_sum_year closing Paren
+  
+  output$state_sum_table <- renderTable({
+    req(input$state)
+    disasters %>%
+      filter(State == input$state) %>%
+      select('State', 'Magic Number') %>%
+      group_by(State) %>%
+      summarise('Magic Number Minimum' = min(`Magic Number`, na.rm = TRUE), 
+                'Magic Number Maximum' = max(`Magic Number`, na.rm = TRUE),
+                'Magic Number Mean' = mean(`Magic Number`, na.rm = TRUE),
+                'Magic Number Median' = median(`Magic Number`, na.rm = TRUE))
+   }, striped = TRUE, align = 'r') #state_sum_table closing Paren
+  
+  output$state_all <- renderTable({
+      disasters %>%
+      select('State', 'Magic Number') %>%
+      group_by(State) %>%
+      summarise('Magic Number Minimum' = min(`Magic Number`, na.rm = TRUE), 
+                'Magic Number Maximum' = max(`Magic Number`, na.rm = TRUE),
+                'Magic Number Mean' = mean(`Magic Number`, na.rm = TRUE),
+                'Magic Number Median' = median(`Magic Number`, na.rm = TRUE))
+  }, striped = TRUE, align = 'r') #state_all closing Paren
+
+  output$state_county_table <- renderTable({
+    req(input$state)
+    disasters %>%
+      filter(State == input$state) %>%
+      select('County', 'Magic Number') %>%
+      group_by(County) %>%
+      summarise('Magic Number Minimum' = min(`Magic Number`, na.rm = TRUE), 
+                'Magic Number Maximum' = max(`Magic Number`, na.rm = TRUE),
+                'Magic Number Mean' = mean(`Magic Number`, na.rm = TRUE),
+                'Magic Number Median' = median(`Magic Number`, na.rm = TRUE))
   }, striped = TRUE, align = 'r') #state_sum_table closing Paren
   
-#format.data.frame cannot select individuals columns (I tried for a long time), you know, because R...so to 
+  
+  #format.data.frame cannot select individuals columns (I tried for a long time), you know, because R...so to 
 #avoid commas being added to the year column, I convert that column to a character beforehand temporarily
   
   output$county_full <- renderTable({
@@ -110,7 +145,101 @@ shinyServer(function(input, output) {
       select(-'Damage_Nominal', -'Damage_CPIAdj') %>%
       format.data.frame(justify = 'right', big.mark = ',', trim = TRUE)
   }, striped = TRUE, align = 'r') #state_full closing Paren
-   
+
+  output$county_plot <- renderPlotly({
+    req(input$county)
+    ggplotly(disasters %>%
+      filter(State %in% input$state & County %in% input$county) %>%
+        na.omit() %>%
+      as.data.table() %>%
+      melt(measure.vars = c('Expected Damage', 'Total Damage'), 
+           variable.name = 'damcat', 
+           value.name = 'damage') %>%
+      ggplot(aes(y = damage, x = Year, color = damcat, group = damcat))
+      + geom_line()
+      + theme_bw()
+      + theme(legend.title = element_blank())
+      + scale_x_continuous(breaks = 1995:2019)
+      + scale_y_continuous(labels =  unit_format(unit = 't', scale = 1e-3, prefix = '$'))
+      + labs(title = 'Expected Damage vs. Actual Damage Per Year')
+      + xlab('')
+      + ylab('')
+      + theme(axis.text.x = element_text(angle = 45))
+    ) #ggplotly closing Paren
+
+  }) #county_plot closing Paren
+  
+  output$county_plot_ratio <- renderPlotly({
+    req(input$county)
+    ggplotly(disasters %>%
+               filter(State %in% input$state & County %in% input$county) %>%
+               na.omit() %>%
+               ggplot(aes(y = `Magic Number`, x = Year))
+             + geom_line()
+             + theme_bw()
+             + theme(legend.title = element_blank())
+             + scale_x_continuous(breaks = 1995:2019)
+             + labs(title = 'Magic Number Per Disaster Year')
+             + xlab('')
+             + ylab('')
+             + theme(axis.text.x = element_text(angle = 45))
+    ) #ggplotly closing Paren
+    
+  }) #county_plot_ratio closing Paren 
+
+  output$state_plot_ratio <- renderPlotly({
+    req(input$state)
+    ggplotly(disasters %>%
+               filter(State %in% input$state) %>%
+               na.omit() %>%
+               group_by(Year) %>% 
+               summarise(`Affected Population Change` = sum(`Affected Population Change`, na.rm = TRUE),
+                         `Total Damage` = sum(`Total Damage`),
+                         `Expected Damage` = sum(`Expected Damage`, na.rm = TRUE),
+                         `Magic Number` = mean(`Magic Number`, na.rm = TRUE)) %>%
+               ggplot(aes(y = `Magic Number`, x = Year))
+             + geom_line()
+             + theme_bw()
+             + theme(legend.title = element_blank())
+             + scale_x_continuous(breaks = 1995:2019)
+             + labs(title = 'Mean Magic Number Per Disaster Year')
+             + xlab('')
+             + ylab('')
+             + theme(axis.text.x = element_text(angle = 45))
+    ) #ggplotly closing Paren
+    
+  }) #state_plot_ratio closing Paren
+  
+  # output$county_plot_damage <- renderPlotly({
+  #   req(input$county)
+  #   ggplotly(floods %>%
+  #              filter(State %in% input$state & County %in% input$county) %>%
+  #              na.omit() %>%
+  #              group_by(Year) %>%
+  #              summarise('Total Nominal Damage' = sum(Damage_Nominal), 
+  #                        'Total CPI Adjusted Damage' = sum(Damage_CPIAdj),
+  #                        'Max Nominal Damage' = max(Damage_Nominal),
+  #                        'Max CPI Adjusted Damage' = max(Damage_CPIAdj),
+  #                        'Mean Nominal Damage' = mean(Damage_Nominal),
+  #                        'Mean CPI Adjusted Damage' = mean(Damage_CPIAdj)) %>%
+  #              as.data.table() %>%
+  #              melt(measure.vars = list(input$damage_class1, input$damage_class2), 
+  #                   variable.name = 'damcat', 
+  #                   value.name = 'damage') %>%
+  #              ggplot(aes(y = damage, x = Year, color = damcat, group = damcat))
+  #            + geom_line()
+  #            + theme_bw()
+  #            + theme(legend.title = element_blank())
+  #            + scale_x_continuous(breaks = 1995:2019)
+  #            + scale_y_continuous(labels =  unit_format(unit = 't', scale = 1e-3, prefix = '$'))
+  #            + labs(title = 'Adjusted Damage Per Disaster Year')
+  #            + xlab('')
+  #            + ylab('')
+  #            + theme(axis.text.x = element_text(angle = 45))
+  #   ) #ggplotly closing Paren
+  #  
+  #}) #county_plot_damage closing Paren 
+       
 #Text outputs for dynamic use in table titles 
 #For some reason if I call one of these outputs more than once, it destroys my dashboard layout
   
