@@ -23,9 +23,17 @@ shinyUI(
         tabItem(tabName = 'county_sum', 
                 tabBox(
                     title = '',
-                    tabPanel('Summary', textOutput('county_selection')),
+                    tabPanel('Calculated Ratio Per Year',
+                             h3(textOutput('county_selection1')),
+                             p(''),
+                             tableOutput('county_ratio')),
+                    tabPanel('Per Year Summary', 
+                             h3(textOutput('county_selection2')),
+                             tableOutput('county_sum_table')),
+                             p(''),
                     tabPanel('Complete List',
-                             textOutput('county_selection1'),
+                             h3(textOutput('county_selection3')),
+                             p(''),
                              tableOutput('county_full'))
                       ) #tabBox Paren
                 ), #tabItem Paren
@@ -33,9 +41,17 @@ shinyUI(
         tabItem(tabName = 'state_sum',
                 tabBox(
                     title = '',
-                    tabPanel('Summary', textOutput('state_selection')),
+                    tabPanel('Calculated Ratio Per Year',
+                             h3(textOutput('state_selection1')),
+                             p(''),
+                             tableOutput('state_ratio')),
+                    tabPanel('Per Year Summary', 
+                             h3(textOutput('state_selection2')),
+                             p(''),
+                             tableOutput('state_sum_table')),
                     tabPanel('Complete List', 
-                             textOutput('state_selection1'),
+                             h3(textOutput('state_selection3')),
+                             p(''),
                              tableOutput('state_full'))
                       ) #tabBox Paren 
                 ) #tabItem Paren 

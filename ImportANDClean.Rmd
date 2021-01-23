@@ -115,6 +115,8 @@ census_full <- census_old %>%
               values_from = 'Pop') %>%
   filter(state_fips %in% fips_filter) %>%
   rename(pop1996 = `1996`, pop1997 = `1997`, pop1998 = `1998`, pop1999 = `1999`) %>%
+  #rename(`2020` = pop2020, `2019` = pop2019, `2018` = pop2018, `2017` = pop2017, `2016` = pop2016, 
+  #       `2015` = pop2015, `2014` = pop2014, `2013` = pop2013, `2012` = pop2012, `2011` = pop2011) %>%
   merge(census_new, by.x = c('state_fips', 'county_fips'), 
                     by.y = c('state_fips', 'county_fips'))
 ```
