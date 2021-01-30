@@ -64,11 +64,14 @@ disasters <- disasters %>%
   group_by(State, County, Year) %>%
   summarise(Population = mean(Population), `Total Damage` = sum(Damage_CPIAdj)) %>%
   mutate(`Population Change` = Population - shift(Population, 1, type = 'lag'), 
-         `Population Change Ratio` = Population / shift(Population, 1, type = 'lag'), 
-         `Expected Damage` = `Total Damage` * Population / shift(Population, 1, type = 'lag'),
-         `Resiliency Factor` = (`Total Damage` * Population / shift(Population, 1, type = 'lag')) / `Total Damage`) %>%
+         `Expected Damage` = shift(`Total Damage`, 
+                                   1, type = 'lag') * Population / shift(Population, 
+                                                                         1, type = 'lag'),
+         `Resiliency Factor` = (shift(`Total Damage`, 
+                                      1, type = 'lag')
+                                * Population / shift(Population, 
+                                                     1, type = 'lag')) / `Total Damage`) %>%
   rename(`Affected Population` = Population, 
-         `Affected Population Change Ratio` = `Population Change Ratio`, 
          `Affected Population Change` = `Population Change`)
 
 write.csv('data/disasters.csv', row.names = FALSE)

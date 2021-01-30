@@ -17,7 +17,7 @@ shinyServer(function(input, output) {
     req(input$county)
     disasters %>%
       filter(State == input$state & County == input$county) %>%
-      select('Year', 'Affected Population Change', 'Total Damage', 
+      select('Year', 'Affected Population', 'Affected Population Change', 'Total Damage', 
              'Expected Damage', 'Resiliency Factor') %>% 
       mutate(Year = as.character(Year),
            `Total Damage` = as.integer(`Total Damage`),
@@ -30,14 +30,16 @@ shinyServer(function(input, output) {
     req(input$state)
     disasters %>%
       filter(State == input$state) %>%
-      select('Year', 'Affected Population Change', 'Total Damage', 
+      select('Year', 'Affected Population', 'Affected Population Change', 'Total Damage', 
              'Expected Damage', 'Resiliency Factor') %>% 
       group_by(Year) %>% 
-      summarise(`Affected Population Change` = sum(`Affected Population Change`, na.rm = TRUE),
+      summarise(`Affected Population` = sum(`Affected Population`, na.rm = TRUE),
+                `Affected Population Change` = sum(`Affected Population Change`, na.rm = TRUE),
                 `Total Damage` = sum(`Total Damage`),
                 `Expected Damage` = sum(`Expected Damage`, na.rm = TRUE),
                 `Resiliency Factor` = mean(`Resiliency Factor`, na.rm = TRUE)) %>% 
       mutate(Year = as.character(Year),
+             `Affected Population` = as.integer(`Affected Population`),
              `Total Damage` = as.integer(`Total Damage`),
              `Expected Damage` = as.integer(`Expected Damage`),
              `Affected Population Change` = as.integer(`Affected Population Change`)) %>%
@@ -108,7 +110,8 @@ shinyServer(function(input, output) {
                 'Resiliency Factor Mean' = mean(`Resiliency Factor`, na.rm = TRUE),
                 'Resiliency Factor Median' = median(`Resiliency Factor`, na.rm = TRUE),
                 'Resiliency Factor Standard Deviation' = sd(`Resiliency Factor`, na.rm = TRUE)
-                )
+                ) %>%
+      mutate(`Resiliency Factor Minimum` = formatC(`Resiliency Factor Minimum`, format = 'f', digits =  6))
    }, striped = TRUE, align = 'r') #state_sum_table closing Paren
   
   output$state_sum_table1 <- renderTable({
@@ -130,12 +133,13 @@ shinyServer(function(input, output) {
       disasters %>%
       select('State', 'Resiliency Factor') %>%
       group_by(State) %>%
-      summarise('Resiliency Factor Minimum' = min(`Resiliency Factor`, na.rm = TRUE), 
+      summarise('Resiliency Factor Minimum' = min(`Resiliency Factor`, na.rm = TRUE),
                 'Resiliency Factor Maximum' = max(`Resiliency Factor`, na.rm = TRUE),
                 'Resiliency Factor Mean' = mean(`Resiliency Factor`, na.rm = TRUE),
                 'Resiliency Factor Median' = median(`Resiliency Factor`, na.rm = TRUE),
                 'Resiliency Factor Standard Deviation' = sd(`Resiliency Factor`, na.rm = TRUE)
-                )
+                ) %>%
+      mutate(`Resiliency Factor Minimum` = formatC(`Resiliency Factor Minimum`, format = 'f', digits =  6))
   }, striped = TRUE, align = 'r') #state_all closing Paren
 
   output$state_county_table <- renderTable({
@@ -153,7 +157,7 @@ shinyServer(function(input, output) {
   }, striped = TRUE, align = 'r') #state_county_table closing Paren
   
   
-  #format.data.frame cannot select individuals columns (I tried for a long time), you know, because R...so to 
+#format.data.frame cannot select individuals columns (I tried for a long time), you know, because R...so to 
 #avoid commas being added to the year column, I convert that column to a character beforehand temporarily
   
   output$county_full <- renderTable({
@@ -194,7 +198,7 @@ shinyServer(function(input, output) {
       ggplot(aes(y = damage, x = Year, color = damcat, group = damcat))
       + geom_line()
       + theme_dark()
-      + theme(legend.title = element_blank(), legend.position = 'none')
+      + theme(legend.title = element_blank())
       + scale_x_continuous(breaks = 1995:2019)
       + scale_y_continuous(labels =  unit_format(unit = 't', scale = 1e-3, prefix = '$'))
       + labs(title = 'Expected Damage & Actual Damage Per Year')
